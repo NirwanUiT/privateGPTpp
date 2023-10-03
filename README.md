@@ -24,14 +24,16 @@ The entire framework is divided into the frontend and the backend architectures.
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
 12. Run the following commands
-    ```mkdir models```
-    ```cd models```
-    ``````
+   <br>```mkdir models```
+   <br>```cd models```
+   <br>``````
 14. 
 15. Further change directory into "deploy-llm-project"
 16. Run ```python app.py```
-17. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER
+17. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+    <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
+    <br>
     It should download the repository of phi_1.5 along with the .bin file which is approximately 3 GB in size.
 
 ## Backend
