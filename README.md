@@ -21,7 +21,7 @@ The entire framework is divided into the frontend and the backend architectures.
 7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/{a custom new folder} -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest```
 8. This will download the docker image onto your server. This will take some time.
 9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
-10. Now you can clone this repository into your folder. 
+10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPT.git```
 
 ## Backend
 
