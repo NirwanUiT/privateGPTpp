@@ -1,0 +1,132 @@
+<!--Create a basic template in html-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>LLM Project</title>
+        <!--Bootstrap CSS-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <!--Use bootstrap CSS to create a header in a red dialogue box-->
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                background-color: #f2f2f2;
+                background-image: url("https://img.freepik.com/free-vector/floral-decorated-with-pink-bush-stroke-beige-background_53876-118878.jpg?w=2000");
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+            
+            .container {
+                max-width: 360px;
+                margin: 50px auto;
+                padding: 20px;
+                background-color: #fff;
+                box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            }
+            
+            .container h2 {
+                background-color: black;
+                color: white;
+                font-family: 'Times New Roman', Times, serif;
+                padding: 10px 0;
+                text-align: center;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            label {
+                font-weight: bold;
+            }
+            
+            input[type="text"],
+            input[type="password"],
+            select {
+                width: 100%;
+                height: 30px;
+                padding: 4px 9px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                background-color: #fff;
+            }
+            
+            .btn-primary {
+                background-color: #4CAF50;
+                border: none;
+                color: #fff;
+                padding: 8px 5px;
+                cursor: pointer;
+            }
+            
+            .btn-primary:hover {
+                background-color: #45a049;
+            }
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    </head>
+
+    <body>
+        <div class="login">
+        <h2>privateGPT</h2>
+            <p>Enter query</p>
+            <form action="{{url_for('predict')}}" method="post" enctype=multipart/form-data>
+                <input type="text" name="text" placeholder="Text" required="required">
+                <!--Implement a drop down menu-->
+                <select name="model" id="model">
+                    <option value="GPT4All">GPT4All</option>
+                    <option value="LlamaCpp">LlamaCpp</option>
+                </select>
+                <!--Implement a box to upload  a single .txt file -->
+                <input type="file" name="file" id="file" accept=".txt">
+
+                <button type="submit" class="btn btn-primary btn-block btn-large"> Predict Text </button>
+            </form>
+            <br>
+            <br>
+            <b>{{ prediction_text }}</b>
+            <br>
+            <br>
+            <!--
+                Print the elements of the list sources in the form of a table
+            -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Text</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for source in sources %}
+                    <tr>
+                        <!--Split source by : -->
+                        <td>{{ source.split(':')[0] }}</td>
+                        <td>{{ source.split(':')[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+        </div>
+    </body>
+
+
+</html>

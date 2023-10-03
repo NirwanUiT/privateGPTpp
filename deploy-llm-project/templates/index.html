@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+          content="A completely private way of using the power of LLMs on your personal documents. ">
+    <meta name="keywords" content="ChatGPT, OpenAI, GPT, API, lightweight client">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Krivich (https://github.com/Krivich)">
+    <title>GPT-Over-API ChatGPT Client</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #fff;
+        }
+
+        textarea,
+        select,
+        input {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        textarea:focus,
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: #1E90FF;
+        }
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            background-color: rgb(32, 33, 35);
+            color: #fff;
+            padding: 20px;
+        }
+
+
+        #chat-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-list-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-list-item:hover {
+            background-color: rgb(42, 42, 42);
+        }
+
+        .chat-list-item-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 10px;
+            flex: 1;
+        }
+
+        .chat-list-item-delete {
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            margin-left: auto;
+            border: none;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .new-chat-button {
+            margin-bottom: 20px;
+            background-color: rgb(66, 133, 244);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .token-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgb(32, 33, 35);
+            color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .token-label {
+            margin-bottom: 10px;
+        }
+
+        .token-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .token-label a {
+            color: #fff;
+        }
+
+        .scroll-container {
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+
+        .right {
+            flex: 1;
+            padding: 20px 0 20px 0;
+        }
+
+        .message {
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 0, 0, .1);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 24px 0 24px 0;
+        }
+
+        .message:nth-child(even) {
+            background-color: rgb(247, 247, 248);
+        }
+
+        .message .message-content {
+            flex: 1;
+            max-width: 765px;
+            white-space: pre-wrap;
+            margin-left: auto;
+        }
+
+        .message .message-content:nth-child(even) {
+            flex: 1;
+            max-width: 765px;
+            white-space: pre-wrap;
+            margin-left: auto;
+        }
+
+        .message .message-content p {
+            margin: 0;
+        }
+
+        .message .message-checkbox {
+            margin-right: auto;
+        }
+
+        .prompt {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            max-width: 765px;
+            margin-right: auto;
+            margin-left: auto;
+            padding-top: 24px;
+        }
+
+        .prompt #input {
+            flex: 1;
+        }
+
+        #send-request-button {
+            background-color: rgb(66, 133, 244);
+        }
+
+
+        .button {
+            margin-left: 24px;
+            color: #fff;
+            background-color: gray;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button[disabled] {
+            background-color: rgb(200, 200, 200);
+            cursor: not-allowed;
+        }
+
+        .clickable:hover {
+            opacity: 0.8;
+            box-shadow: 0 0 3px 3px rgba(0, 128, 255, 0.2);
+        }
+
+        .clickable:active {
+            opacity: 0.6;
+        }
+
+        .icon {
+            display: inline-block;
+            height: 40px;
+            width: 40px;
+            font-size: 150%;
+            /*margin: 0;*/
+            padding: 0;
+        }
+
+        .icon:not(:first-of-type) {
+            margin-left: 12px;
+        }
+
+
+        #properties-panel {
+            max-width: 768px;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #properties-panel > div {
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+
+        #properties-panel.hidden {
+            display: none;
+        }
+
+        #welcome-panel {
+            max-width: 768px;
+            margin-right: auto;
+            margin-left: auto;
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #welcome-panel.hidden {
+            display: none;
+        }
+
+
+        #welcome-panel h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        #welcome-panel h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        #welcome-panel ul {
+            margin-left: 24px;
+            list-style-type: disc;
+        }
+
+        #welcome-panel li {
+            margin-bottom: 8px;
+        }
+
+        .code {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ffffff;
+            border-radius: 5px;
+        }
+
+        .syntax-bracket {
+            color: blue;
+        }
+
+        .syntax-quote {
+            color: green;
+        }
+
+        .syntax-operator {
+            color: red;
+        }
+
+        .syntax-symbol {
+            color: purple;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="left">
+    <button class="new-chat-button button clickable" onclick="newChat()">+ New chat</button>
+    <ul id="chat-list" class="scroll-container"></ul>
+    <!--<div class="token-panel">-->
+        <!--<label for="token" class="token-label">
+            API token (<a href="https://platform.openai.com/account/api-keys" target="_blank">request</a>):
+        </label>-->
+        <!--Input file of any type including .txt, .csv, .pdf-->
+    <!--<form action="uploadFile()" method="post" enctype="multipart/form-data">-->
+        <form action="http://localhost:3000/upload" method="post" enctype="multipart/form-data">
+    <!--<form onsubmit="uploadFile()" method="post" enctype="multipart/form-data">-->
+        <input type="file" name="file" id="file" accept="text/*, .pdf">
+        <button type="submit">Upload</button>
+    </form>
+    <!--</div>-->
+</div>
+<div class="right">
+    <div id="welcome-panel">
+        <h1>Welcome to GPT-Over-API</h1>
+        <p>Did you know that using ChatGPT through an API is much cheaper than buying a ChatGPT Plus subscription? Now
+            it's even easier for non-programmers too! Meet our lightweight alternative client that allows you to use
+            ChatGPT just as conveniently, but through a cost-effective API. Simply enter your API token in the left
+            panel. If you don't have a token yet, you can get one by following the link provided in the app.</p>
+        <h2>Main Features:</h2>
+        <ul>
+            <li>Easy to use alternative client for ChatGPT</li>
+            <li>Uses a cost-effective API instead of buying a ChatGPT Plus subscription</li>
+            <li>ChatGPT responses can be cut off mid-sentence. This client lets you set a token limit to prevent this
+                issue
+            </li>
+            <li>ChatGPT responses can vary greatly between conversations. Here you to customize parameters like model
+                selection and temperature for more consistent responses
+            </li>
+            <li>Long discussions can be hindered by incorrect responses and discarded hypotheses. Our client lets you
+                specify context data for generating more accurate and relevant answers
+            </li>
+        </ul>
+    </div>
+    <div id="dialogue" class="scroll-container"></div>
+    <div class="prompt">
+        <textarea id="input" rows="3" cols="50" placeholder="Input your prompt here"></textarea><br>
+        <button class="button clickable icon" id="toggle-properties">⚙</button>
+        <button onclick="sendRequest()" class="button clickable icon" id="send-request-button">➤</button>
+    </div>
+    <div id="properties-panel" class="hidden">
+        <div>
+            <label for="model" title="Model of AI. Some models are not accessible for some users">Model:</label>
+            <select id="model">
+                <option value="GPT4All">GPT4All</option>
+                <option value="LlamaCpp" selected>LlamaCpp</option>
+                <option value="MedLlama">MedLlama</option>
+                <option value="phi">phi</option>
+                <option value="codegeex2">codegeex2</option>
+                <option value="codellama">codellama</option>
+                <option value="vicuna">vicuna</option>
+            </select>
+        </div>
+        <div>
+            <label for="temperature"
+                   title="Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic">Temperature:</label>
+            <input type="number" id="temperature" name="temperature" min="0" max="2" step="0.1" value="1">
+        </div>
+        <div>
+            <label for="max-tokens"
+                   title="The maximum number of tokens to generate in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length">Max
+                Tokens:</label>
+            <input type="number" id="max-tokens" name="max-tokens" min="1" value="200" style="width: 50px">
+        </div>
+        <div>
+            <label for="context-strategy" title="How to select messages from the history to use them as prompt context">Context:</label>
+            <select id="context-strategy">
+                <option value="1">Last 1</option>
+                <option value="5">Last 5</option>
+                <option value="10" selected>Last 10</option>
+                <option value="100500">All</option>
+            </select>
+        </div>
+    </div>
+
+</div>
+<script>
+
+    const dialogue = document.getElementById("dialogue");
+    const apiTokenInput = document.getElementById("token");
+    const promptField = document.getElementById("input");
+    const button = document.getElementById("send-request-button");
+
+    const chatList = document.getElementById("chat-list");
+
+    //const selectedModel = document.getElementById("model");
+    let selectedModel = "LlamaCpp";
+    let temperature = 1;
+    let maxTokens = 200;
+    let contextStrategy = 10;
+
+    // prompt to OpenAI API interaction logic
+
+    let history = [];
+
+    button.disabled = false;
+
+    async function sendRequest() {
+        //const apiToken = apiTokenInput.value.trim();
+        //if (!apiToken) {
+        //    alert("Please select a document first");
+        //    return;
+        //}
+        const prompt = promptField.value.trim();
+        if (!prompt) {
+            alert("Enter text");
+            return;
+        }
+
+        if (button.disabled) {
+            alert("Request in progress");
+            return;
+        }
+
+        const lastMessages = generateContext();
+        const messages = [...lastMessages, {role: "user", content: prompt}];
+
+        button.disabled = true;
+        const response = await fetch("http://localhost:3000/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                //Authorization: `Bearer ${apiToken}`,
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                model: selectedModel,
+                messages,
+                //temperature: temperature,
+                //top_p: 1,
+                //frequency_penalty: 0,
+                //presence_penalty: 0,
+                //max_tokens: maxTokens,
+                //stream: false,
+                //n: 1,
+            }),
+        });
+
+        if (response.ok) {
+            const json = await response.json();
+            //const message = json.choices[0].message.content;
+            // Receive the dict sent from app.py in the form {'answer': answer, 'sources': sources}
+            //const upload_message =json.message;
+            const message = json.answer;
+            //const sources = json.sources;
+            // Display the answer and the sources
+
+            history.push({role: "user", content: prompt}, {role: "assistant", content: message},);
+
+            renderHistory();
+            promptField.value = "";
+
+            saveHistory(history);
+
+            button.disabled = false;
+
+        } else {
+
+            button.disabled = false;
+            alert(`Error: ${response.status} ${response.statusText}`);
+        }
+    }
+
+    async function uploadFile() {
+        //print("uploadFile");
+        console.log("uploadFile");
+        const file = document.getElementById("file").files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        fetch("/upload", {
+            method: "POST",
+            headers: {
+                "Content-Type": "multipart/form-data",
+                //Authorization: `Bearer ${apiToken}`,
+            },
+            body: formData,
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                console.log("Success:", result);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+
+    function renderHistory() {
+        dialogue.innerHTML = history
+            .map(({role, content}) => {
+                let messageContent = "";
+                let isCodeBlock = false;
+
+                // Split content into sections based on code blocks
+                const contentSections = content.split(/```/);
+
+                // Loop through each section and render accordingly
+                for (let i = 0; i < contentSections.length; i++) {
+                    const section = contentSections[i];
+
+                    // If the section is a code block, wrap it in a <pre> tag and mark as a code block
+                    if (isCodeBlock) {
+                        messageContent += `<pre class="code">${highlightSyntax(section)}</pre>`;
+                        isCodeBlock = false;
+                    } else {
+                        messageContent += section;
+                        isCodeBlock = true;
+                    }
+                }
+
+                // Render the message HTML with a checkbox for each message
+                return `
+        <div class="message">
+          <span class="message-content">${messageContent}</span>
+          <input type="checkbox" class="message-checkbox" title="Choose messages to use as context for your prompt">
+        </div>
+      `;
+            })
+            .join("");
+
+        setCheckboxes();
+        welcomePanel();
+    }
+
+    function highlightSyntax(text) {
+        // Regular expressions for syntax highlighting
+        const bracketsRegex = /[\[\]\{\}\(\)]/g;
+        const quotesRegex = /("|')(?:(?=(\\?))\2.)*?\1/g;
+        const operatorsRegex = /[+\-*/%=<>!&|^~?:;]/g;
+        const symbolsRegex = /[\.,@#$]/g;
+
+        return text.replace(
+            RegExp(
+                [
+                    bracketsRegex.source,
+                    quotesRegex.source,
+                    operatorsRegex.source,
+                    symbolsRegex.source,
+                ].join("|"),
+                "g"
+            ),
+            (match) => {
+                if (bracketsRegex.test(match)) {
+                    bracketsRegex.lastIndex = 0;
+                    return '<span class="syntax-bracket">' + match + "</span>";
+                } else if (quotesRegex.test(match)) {
+                    quotesRegex.lastIndex = 0;
+                    return '<span class="syntax-quote">' + match + "</span>";
+                } else if (operatorsRegex.test(match)) {
+                    operatorsRegex.lastIndex = 0;
+                    return '<span class="syntax-operator">' + match + "</span>";
+                } else if (symbolsRegex.test(match)) {
+                    symbolsRegex.lastIndex = 0;
+                    return '<span class="syntax-symbol">' + match + "</span>";
+                } else {
+                    return match;
+                }
+            }
+        );
+    }
+
+
+    // Custom context by checkbox logic
+
+    function setCheckboxes() {
+        const checkboxList = document.querySelectorAll('.message-checkbox');
+        const start = Math.max(history.length - contextStrategy, 0); // начальный индекс для перебора
+        checkboxList.forEach((checkbox, index) => {
+            checkbox.checked = index >= start;
+        });
+    }
+
+    function generateContext() {
+        const contextMessages = [];
+        const checkboxList = document.querySelectorAll('.message-checkbox');
+        checkboxList.forEach((checkbox, index) => {
+            if (checkbox.checked) {
+                contextMessages.push(history[index]);
+            }
+        });
+        return contextMessages;
+    }
+
+    // Previous chat history save/load/delete/render/new logic
+
+    const HISTORY_KEY = "chat-history";
+
+    function newChat() {
+        history = [];
+        renderHistory();
+    }
+
+    function loadChatList() {
+        chatList.innerHTML = "";
+        const savedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+
+        savedHistory.forEach((item, index) => {
+            const {name} = item;
+            const listItem = document.createElement("li");
+            listItem.classList.add("chat-list-item");
+            listItem.textContent = name;
+            const deleteButton = document.createElement("button");
+            deleteButton.classList.add("chat-list-item-delete");
+            deleteButton.classList.add("clickable");
+            deleteButton.textContent = "🗑️";
+            deleteButton.addEventListener("click", () => deleteHistory(index));
+            listItem.appendChild(deleteButton);
+            listItem.addEventListener("click", () => {
+                history = item.history;
+                renderHistory();
+            });
+            chatList.appendChild(listItem);
+        });
+    }
+
+    function deleteHistory(index) {
+        const savedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        savedHistory.splice(index, 1);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(savedHistory));
+        loadChatList();
+    }
+
+    function saveHistory(history) {
+        const name = history[0].content.substring(0, 20);
+        const savedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        const index = savedHistory.findIndex((item) => item.name === name);
+        if (index === -1) {
+            savedHistory.push({name, history});
+        } else {
+            savedHistory[index] = {name, history};
+        }
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(savedHistory));
+        loadChatList();
+    }
+
+    // properties bar logic
+
+    const modelSelectbox = document.getElementById("model");
+    modelSelectbox.addEventListener("change", () => {
+        selectedModel = modelSelectbox.value;
+    });
+
+    const temperatureInput = document.getElementById("temperature");
+    temperatureInput.addEventListener("input", () => {
+        temperature = parseFloat(temperatureInput.value);
+    });
+
+    const maxTokensInput = document.getElementById("max-tokens");
+    maxTokensInput.addEventListener("input", () => {
+        maxTokens = parseInt(maxTokensInput.value);
+    });
+
+    const contextStrategySelectbox = document.getElementById("context-strategy");
+    contextStrategySelectbox.addEventListener("change", () => {
+        contextStrategy = parseInt(contextStrategySelectbox.value);
+        setCheckboxes();
+    });
+
+    const toggleButton = document.getElementById("toggle-properties");
+    toggleButton.addEventListener("click", () => {
+        const propertiesPanel = document.getElementById("properties-panel");
+        propertiesPanel.classList.toggle("hidden");
+    });
+
+    // welcome panel logic
+    function welcomePanel() {
+        if (!history || history.length === 0) {
+            document.getElementById("welcome-panel").classList.remove('hidden');
+        } else {
+            document.getElementById("welcome-panel").classList.add('hidden');
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        loadChatList();
+    });
+
+</script>
+</body>
+</html>
