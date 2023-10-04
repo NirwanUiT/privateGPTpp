@@ -40,7 +40,6 @@ The entire framework is divided into the frontend and the backend architectures.
 
 ## Backend
 
-*Insert flowchart of workings*
 ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/Flowchart.png?raw=true)
 
 The backend is built primarily on Langchain and the HuggingFace Hub.
@@ -51,13 +50,15 @@ The work done in the backend consists of primarily first processing the uploaded
 
 ### Loading and processing documents:
 1. The functions "load_single_document", "load_documents" and "process_documents" are related to loading the uploaded documents and processing them.
-2. There exists a ```source_documents``` folder in the parent directory which contains all the uploaded documents. "load_documents" loads these documents. "process_documents" processes these documents. It uses ```RecursiveCharacterTextSplitter``` to split the document into a number of chunks. The chunk size is a hyperparameter that can be set manually. It will be shown later.
+2. There exists a ```source_documents``` folder in the parent directory which contains all the uploaded documents. "load_documents" loads these documents. "process_documents" processes these documents. It uses ```RecursiveCharacterTextSplitter``` to split the document into a number of chunks. The chunk size is a hyperparameter that can be set manually. It will be shown later.<br>
+
 ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/text_splitter.png?raw=true)
 
 ### Ingestion:
 1. The function "ingest" creates vector embeddings of the text chunks using the ```HuggingFaceEmbeddings```. The embedding model can be changed. It is a hyperparameter.
 2. Then we use the Chroma vectorstore from Langchain to create a database of these embeddings for generating relevant information for the model.
 3. It also checks if there is an existing database, and if there is, it just appends the new embeddings to the existing database.
+   
 ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/ingest.png?raw=true)
 
 ### Running inference:
@@ -72,14 +73,20 @@ The work done in the backend consists of primarily first processing the uploaded
    a. Go to the https://huggingface.co/<br>
    b. This website hosts a huge collection of models for LLMs and other purposes.<br>
    c. Search for any model (as an example I will be showcasing the phi_1.5 model). Click on "Clone this repository".<br>
+   
    ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/huggingface_phi_clone.png?raw=true)<br>
+   
    d. Enter the highlighted line into the terminal in your models directory.<br>
+   
    ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/clone_huggingface_model.png?raw=true)<br>
+   
    e. This should download all the necessary files into your models directory.<br>
    f. You can now use a code as shown below with the local path to your model to load your LLM using the ```HuggingFacePipeline```.
+   
    ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/HuggingFacePipeline.png?raw=true)<br>
-4. Since we want a question-answer system, in this example, we will be using RetrievalQA chain to chain the LLM and the retrieval database. Other chains include ExtractiveQA and GenerativeQA.<br>
-5. Subsequently, we are now prepared to answer the query in context of the provided documents.
+   
+5. Since we want a question-answer system, in this example, we will be using RetrievalQA chain to chain the LLM and the retrieval database. Other chains include ExtractiveQA and GenerativeQA.<br>
+6. Subsequently, we are now prepared to answer the query in context of the provided documents.
 
 ## Frontend
 
