@@ -65,7 +65,7 @@ The work done in the backend consists of primarily first processing the uploaded
 2. We will use a chain here. A chain in the context of Langchain is simply a pipeline that takes your LLM, prompt, relevant information, etc to predict an answer.
 3. Here, we can select different kinds of models for our use case.<br>
    For GPT4All - ```llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)```<br>
-   For LlamaCpp - ```LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
+   For LlamaCpp - ```llm = LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
    Only LlamaCpp can use a GPU. You can adjust further parameters of these classes by reading through their documentation.<br>
    Please note that due to size restrictions, these are the only two models provided to you.<br>
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
@@ -78,4 +78,9 @@ The work done in the backend consists of primarily first processing the uploaded
    e. This should download all the necessary files into your models directory.<br>
    f. You can now use a code as shown below with the local path to your model to load your LLM using the ```HuggingFacePipeline```.
    ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/HuggingFacePipeline.png?raw=true)<br>
+4. Since we want a question-answer system, in this example, we will be using RetrievalQA chain to chain the LLM and the retrieval database. Other chains include ExtractiveQA and GenerativeQA.<br>
+5. Subsequently, we are now prepared to answer the query in context of the provided documents.
+
+## Frontend
+
 
