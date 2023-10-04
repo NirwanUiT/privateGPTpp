@@ -23,8 +23,8 @@ The entire framework is divided into the frontend and the backend architectures.
 9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
-12. Run the following commands
-   <br>```mkdir models```
+12. Run the following commands<br>
+   ```mkdir models```
    <br>```cd models```
    <br>``````
 14. 
