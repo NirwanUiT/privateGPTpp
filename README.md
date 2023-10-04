@@ -55,4 +55,8 @@ The work done in the backend consists of primarily first processing the uploaded
 
 ### Ingestion:
 1. The function "ingest" creates vector embeddings of the text chunks using the ```HuggingFaceEmbeddings```. The embedding model can be changed. It is a hyperparameter.
-2. Then we use the Chroma vectorstore from Langchain to create a database of these embeddings for 
+2. Then we use the Chroma vectorstore from Langchain to create a database of these embeddings for generating relevant information for the model.
+3. It also checks if there is an existing database, and if there is, it just appends the new embeddings to the existing database.
+
+### Running inference:
+1. The function "call_model"
