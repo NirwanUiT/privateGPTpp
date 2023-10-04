@@ -84,3 +84,11 @@ The work done in the backend consists of primarily first processing the uploaded
 ## Frontend
 
 
+## Miscellanous
+
+For the purpose of hyperparameterization for GPT4All and LlamaCpp, you can tune the following hyperparameters:
+1. The batch size: model_n_batch(8)
+2. Number of chunks to be used while retrieval: target_source_chunks(4)
+3. The number of tokens: model_n_ctx(2000)
+4. The number of chunks for documents to be split into: chunk_size(500)
+5. Specifies the number of characters that each chunk should overlap with the previous chunk. This can be useful for ensuring that important information is not missed if it spans across multiple: chunks.chunk_overlap(50)
