@@ -43,4 +43,6 @@ The entire framework is divided into the frontend and the backend architectures.
 *Insert flowchart of workings*
 
 The backend is built primarily on Langchain and the HuggingFace Hub.
+Langchain is an open sourec framework that allows developers to combine LLMs with external sources of computation and data.
+
 The work done in the backend consists of primarily first processing the uploaded document/s and then ingesting them in a vector database.
