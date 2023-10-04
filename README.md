@@ -59,4 +59,16 @@ The work done in the backend consists of primarily first processing the uploaded
 3. It also checks if there is an existing database, and if there is, it just appends the new embeddings to the existing database.
 
 ### Running inference:
-1. The function "call_model"
+1. The function "call_model" takes the query/prompt as input and calls your selected LLM model on the query to generate an output.
+2. We will use a chain here. A chain in the context of Langchain is simply a pipeline that takes your LLM, prompt, relevant information, etc to predict an answer.
+3. Here, we can select different kinds of models for our use case.<br>
+   For GPT4All - ```llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)```<br>
+   For LlamaCpp - ```LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
+   Only LlamaCpp can use a GPU. You can adjust further parameters of these classes by reading through their documentation.<br>
+   Please note that due to size restrictions, these are the only two models provided to you.<br>
+   If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
+   a. Go to the https://huggingface.co/<br>
+   b. This website hosts a huge collection of models for LLMs and other purposes.<br>
+   c. Search for any model (as an example I will be showcasing the phi_1.5 model)
+   
+
