@@ -44,6 +44,9 @@ The entire framework is divided into the frontend and the backend architectures.
 ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/Flowchart.png?raw=true)
 
 The backend is built primarily on Langchain and the HuggingFace Hub.
-Langchain is an open sourec framework that allows developers to combine LLMs with external sources of computation and data.
+Langchain is an open source framework that allows developers to combine LLMs with external sources of computation and data.
+It allows you to use an LLM which has a good amount of general knowledge, but instead of using it's entire database to produce answers, we can use Langchain to direct the LLM to use the existing knowledge from a document to answer our queries. 
+We will now go through parts of code in the file "app.py" to get a better understanding of the code.
+The work done in the backend consists of primarily first processing the uploaded document/s and then ingesting them and creating a vectore database from which the LLM shall refer to for context.
 
-The work done in the backend consists of primarily first processing the uploaded document/s and then ingesting them in a vector database.
+
