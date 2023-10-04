@@ -50,5 +50,9 @@ We will now go through parts of code in the file "app.py" to get a better unders
 The work done in the backend consists of primarily first processing the uploaded document/s and then ingesting them and creating a vectore database from which the LLM shall refer to for context.
 
 ### Loading and processing documents:
-1. The functions "load_single_document", "load_documents" and "process_documents" are related to loading the uploaded documents and processing them. The function "process_documents" uses ```RecursiveCharacterTextSplitter``` to split the document into a number of chunks. The chunk size is a hyperparameter that can be set manually. It will be shown later.
-2. 
+1. The functions "load_single_document", "load_documents" and "process_documents" are related to loading the uploaded documents and processing them.
+2. There exists a ```source_documents``` folder in the parent directory which contains all the uploaded documents. "load_documents" loads these documents. "process_documents" processes these documents. It uses ```RecursiveCharacterTextSplitter``` to split the document into a number of chunks. The chunk size is a hyperparameter that can be set manually. It will be shown later.
+
+### Ingestion:
+1. The function "ingest" creates vector embeddings of the text chunks using the ```HuggingFaceEmbeddings```. The embedding model can be changed. It is a hyperparameter.
+2. Then we use the Chroma vectorstore from Langchain to create a database of these embeddings for 
