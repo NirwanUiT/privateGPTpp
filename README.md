@@ -13,7 +13,7 @@ The entire framework is divided into the frontend and the backend architectures.
 ## Getting started
 
 1. Open Visual Studio Code and connect to the server. For this, you need to install a few extensions. a) Remote-SSH b) Remote Explorer. After they are installed, press F1 and you will need to enter the details provided to you.
-2. At first you will be prompted to enter your user id which should be in the form: ```ssh <host name>@vs-c2.cs.uit.no```
+2. At first you will be prompted to enter your user id which should be in the form: ```ssh <username>@vs-c2.cs.uit.no```
 3. You will be asked to provide your config file.
 4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
 5. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
@@ -28,4 +28,7 @@ The entire framework is divided into the frontend and the backend architectures.
 *Insert flowchart of workings*
 
 The backend is built primarily on Langchain and the HuggingFace Hub.
+Langchain is an open sourec framework that allows developers to combine LLMs with external sources of computation and data.
+
+
 The work done in the backend consists of primarily first processing the uploaded document/s and then ingesting them in a vector database.
