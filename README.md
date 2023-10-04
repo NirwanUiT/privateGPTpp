@@ -26,8 +26,10 @@ The entire framework is divided into the frontend and the backend architectures.
 12. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
-   ``` ```
-14. 
+   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ea4ES3RCB2tLo1dgFGaGD54Bcv5B2TOCkWwtVLMR3Ktl4g?e=6Sd0Bw```<br>
+   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ec7u6QOwqDZOr9aUpPcwit0BO3QoXgwiht9Hm2c5Gyj-Iw?e=D9AGjS```<br>
+   This downloads the LlamaCpp and GPT4All models into your model directory.
+14. Go back to the parent directory by ```cd ..```
 15. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
 16. Run ```python app.py```
 17. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
