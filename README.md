@@ -69,6 +69,10 @@ The work done in the backend consists of primarily first processing the uploaded
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
    a. Go to the https://huggingface.co/<br>
    b. This website hosts a huge collection of models for LLMs and other purposes.<br>
-   c. Search for any model (as an example I will be showcasing the phi_1.5 model)
-   
+   c. Search for any model (as an example I will be showcasing the phi_1.5 model). Click on "Clone this repository".<br>
+   ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/huggingface_phi_clone.png?raw=true)
+   d. Enter the highlighted line into the terminal in your models directory.<br>
+   ![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/clone_huggingface_model.png?raw=true)
+   e. This should download all the necessary files into your models directory.<br>
+   f. 
 
