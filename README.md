@@ -26,8 +26,8 @@ The entire framework is divided into the frontend and the backend architectures.
 12. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
-   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ea4ES3RCB2tLo1dgFGaGD54Bcv5B2TOCkWwtVLMR3Ktl4g?e=6Sd0Bw```<br>
-   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ec7u6QOwqDZOr9aUpPcwit0BO3QoXgwiht9Hm2c5Gyj-Iw?e=D9AGjS```<br>
+   ```wget https://get.station307.com/JNSExca1lch/ggml-gpt4all-j-v1.3-groovy.bin```<br>
+   ```wget https://get.station307.com/FuZv16G4Jx5/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
 14. Go back to the parent directory by ```cd ..```
 15. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
@@ -90,6 +90,8 @@ The work done in the backend consists of primarily first processing the uploaded
 
 ## Frontend
 
+The frontend is created using Flask, HTML, CSS and Javascript.
+It has four primary functions
 
 ## Miscellanous
 
