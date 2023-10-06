@@ -50,13 +50,14 @@ persist_directory = os.environ.get('PERSIST_DIRECTORY')
 model_n_batch = 8
 target_source_chunks = 4
 model_n_ctx = 2000
+chunk_size = 500
+chunk_overlap = 50
 
 # Load environment variables
 persist_directory = os.environ.get('PERSIST_DIRECTORY')
-source_directory = r'/data/privateGPT-gpu/source_documents'
-embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME')
-chunk_size = 500
-chunk_overlap = 50
+source_directory = r'/data/privateGPTpp/source_documents'
+#embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME')
+
 
 from constants import CHROMA_SETTINGS
 
@@ -227,24 +228,24 @@ def call_model(query, model_type, hide_source):
     match model_type:
         case "LlamaCpp":
             #llm = LlamaCpp(model_path=model_path, max_tokens=model_n_ctx, n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+            llm = LlamaCpp(model_path='/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
         case "GPT4All":
             #llm = GPT4All(model=model_path, max_tokens=model_n_ctx, backend='gptj', n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
+            llm = GPT4All(model="/data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
         case "MedLlama":
             llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/medllama', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "phi":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/phi-1_5',task="text-generation", 
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/phi-1_5',task="text-generation", 
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "codegeex2":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/codegeex2-6b', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/codegeex2-6b', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "codellama":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/CodeLlama-7b-hf', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/CodeLlama-7b-hf', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "vicuna":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/vicuna-7b-v1.5', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/vicuna-7b-v1.5', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case _default:
             # raise exception if model_type is not supported
