@@ -18,21 +18,24 @@ The entire framework is divided into the frontend and the backend architectures.
 4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
 5. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
 6. After typing your password, a new window shall open. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
-7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest```
+7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p 6006:6006/tcp -p 8888:8888/tcp nvcr.io/nvidia/pytorch:23.07-py3```
 8. This will download the docker image onto your server. This will take some time.
 9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
-12. Run the following commands<br>
+12. Install the packages required by running ```pip install -r requirements-txt``` in the terminal.
+13. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
+14. And then ```apt-get install git-lfs```
+15. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
-   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ea4ES3RCB2tLo1dgFGaGD54Bcv5B2TOCkWwtVLMR3Ktl4g?e=6Sd0Bw```<br>
-   ```wget https://universitetetitromso-my.sharepoint.com/:u:/g/personal/nba055_uit_no/Ec7u6QOwqDZOr9aUpPcwit0BO3QoXgwiht9Hm2c5Gyj-Iw?e=D9AGjS```<br>
+   ```wget https://get.station307.com/JNSExca1lch/ggml-gpt4all-j-v1.3-groovy.bin```<br>
+   ```wget https://get.station307.com/FuZv16G4Jx5/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
-14. Go back to the parent directory by ```cd ..```
-15. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-16. Run ```python app.py```
-17. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+16. Go back to the parent directory by ```cd ..```
+17. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
+18. Run ```python app.py```
+19. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
     <br>
@@ -90,6 +93,8 @@ The work done in the backend consists of primarily first processing the uploaded
 
 ## Frontend
 
+The frontend is created using Flask, HTML, CSS and Javascript.
+It has four primary functions
 
 ## Miscellanous
 
