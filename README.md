@@ -16,9 +16,10 @@ The entire framework is divided into the frontend and the backend architectures.
 2. At first you will be prompted to enter your user id which should be in the form: ```ssh <host name>@vs-c2.cs.uit.no```
 3. You will be asked to provide your config file.
 4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
-5. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
+5. Now press F1, click on "Connect to host" and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
 6. After typing your password, a new window shall open. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
-7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p 6006:6006/tcp -p 8888:8888/tcp nvcr.io/nvidia/pytorch:23.07-py3```
+7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p <port number>:<port number>/tcp -p 8888:8888/tcp nvcr.io/nvidia/pytorch:23.07-py3```<br>
+The port number can be anything from 1-65535.
 8. This will download the docker image onto your server. This will take some time.
 9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
@@ -34,8 +35,9 @@ The entire framework is divided into the frontend and the backend architectures.
    This downloads the LlamaCpp and GPT4All models into your model directory.
 16. Go back to the parent directory by ```cd ..```
 17. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-18. Run ```python app.py```
-19. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+18. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
+```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
+20. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
     <br>
