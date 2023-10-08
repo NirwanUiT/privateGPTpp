@@ -25,17 +25,18 @@ The port number can be anything from 1-65535.
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
 12. Install the packages required by running ```pip install -r requirements-txt``` in the terminal.
-13. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
-14. And then ```apt-get install git-lfs```
-15. Run the following commands<br>
+13. Additionally run, ```pip install llama-cpp-python==0.1.65 --force-reinstall --upgrade --no-cache-dir```
+14. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
+15. And then ```apt-get install git-lfs```
+16. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
    ```wget https://get.station307.com/JNSExca1lch/ggml-gpt4all-j-v1.3-groovy.bin```<br>
    ```wget https://get.station307.com/FuZv16G4Jx5/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
-16. Go back to the parent directory by ```cd ..```
-17. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-18. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
+17. Go back to the parent directory by ```cd ..```
+18. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
+19. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
 ```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
 20. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
