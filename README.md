@@ -31,8 +31,8 @@ The port number can be anything from 1-65535.
 16. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
-   ```wget https://get.station307.com/JNSExca1lch/ggml-gpt4all-j-v1.3-groovy.bin```<br>
-   ```wget https://get.station307.com/FuZv16G4Jx5/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
+   ```wget https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin```<br>
+   ```wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/blob/main/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
 17. Go back to the parent directory by ```cd ..```
 18. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
