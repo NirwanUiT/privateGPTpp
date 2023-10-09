@@ -71,8 +71,8 @@ The work done in the backend consists of primarily first processing the uploaded
 1. The function "call_model" takes the query/prompt as input and calls your selected LLM model on the query to generate an output.
 2. We will use a chain here. A chain in the context of Langchain is simply a pipeline that takes your LLM, prompt, relevant information, etc to predict an answer.
 3. Here, we can select different kinds of models for our use case.<br>
-   For GPT4All - ```llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)```<br>
-   For LlamaCpp - ```llm = LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
+   For GPT4All - ```llm = GPT4All(model="/data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)```<br>
+   For LlamaCpp - ```llm = LlamaCpp(model_path='/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
    Only LlamaCpp can use a GPU. You can adjust further parameters of these classes by reading through their documentation.<br>
    Please note that due to size restrictions, these are the only two models provided to you.<br>
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
@@ -97,7 +97,13 @@ The work done in the backend consists of primarily first processing the uploaded
 ## Frontend
 
 The frontend is created using Flask, HTML, CSS and Javascript.
-It has four primary functions
+It has four primary functions, namely, uploading the text document to the server, getting the prompt from the user, passing the model to be selected to the backend and then send the output back for display to the frontend.
+In the file "app.py", the function "upload", as it's name suggests, uploads the document to the local server to the folder "source_documents" and calls the "ingest" function mentioned in the above section. The function, "predict" recieves the prompt and the model name from the frontend and calls the LLM model on the prompt.
+In "index.html", we use Javascript to script the workings of the frontend. The function "sendRequest"<br> as shown below takes the prompt and calls the "predict" function 
+![alt text](https://github.com/NirwanUiT/privateGPTpp/blob/master/sendRequest.png?raw=true)<br>
+We also save the history of the chats in the function and push the results from the model to the console here.
+![saveHistory](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/e734c397-0e77-4b15-a402-b33cf31e8563)
+
 
 ## Miscellanous
 
@@ -107,3 +113,4 @@ For the purpose of hyperparameterization for GPT4All and LlamaCpp, you can tune 
 3. The number of tokens: model_n_ctx(2000)
 4. The number of chunks for documents to be split into: chunk_size(500)
 5. Specifies the number of characters that each chunk should overlap with the previous chunk. This can be useful for ensuring that important information is not missed if it spans across multiple: chunks.chunk_overlap(50)
+![sendRequest](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/7c696874-24ed-42a6-9b8d-b15c7ede3710)
