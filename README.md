@@ -99,9 +99,10 @@ The work done in the backend consists of primarily first processing the uploaded
 The frontend is created using Flask, HTML, CSS and Javascript.
 It has four primary functions, namely, uploading the text document to the server, getting the prompt from the user, passing the model to be selected to the backend and then send the output back for display to the frontend.
 In the file "app.py", the function "upload", as it's name suggests, uploads the document to the local server to the folder "source_documents" and calls the "ingest" function mentioned in the above section. The function, "predict" recieves the prompt and the model name from the frontend and calls the LLM model on the prompt.
-In "index.html", we use Javascript to script the workings of the frontend. The function "sendRequest" takes the prompt and calls the "predict" function 
-We also save the history of the chats in the function and push the results from the model to the console here.
-![saveHistory](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/e734c397-0e77-4b15-a402-b33cf31e8563)
+In "index.html", we use Javascript to script the workings of the frontend. The function "sendRequest" takes the prompt and calls the "predict" function as shown below.<br>
+![sendRequest](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/7c696874-24ed-42a6-9b8d-b15c7ede3710)<br>
+We also save the history of the chats in the function and push the results from the model to the console here.<br>
+![saveHistory](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/e734c397-0e77-4b15-a402-b33cf31e8563)<br>
 
 
 ## Miscellanous
@@ -112,4 +113,4 @@ For the purpose of hyperparameterization for GPT4All and LlamaCpp, you can tune 
 3. The number of tokens: model_n_ctx(2000)
 4. The number of chunks for documents to be split into: chunk_size(500)
 5. Specifies the number of characters that each chunk should overlap with the previous chunk. This can be useful for ensuring that important information is not missed if it spans across multiple: chunks.chunk_overlap(50)
-![sendRequest](https://github.com/NirwanUiT/privateGPTpp/assets/115945346/7c696874-24ed-42a6-9b8d-b15c7ede3710)
+
