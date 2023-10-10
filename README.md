@@ -17,7 +17,7 @@ The entire framework is divided into the frontend and the backend architectures.
 4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
 5. Now press F1, click on "Connect to host" and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
 6. After typing your password, a new window shall open. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
-7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}/data -p <port number>:<port number>/tcp nvcr.io/nvidia/pytorch:23.07-py3```<br>
+7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number>:<port number>/tcp nvcr.io/nvidia/pytorch:23.07-py3```<br>
 The port number can be anything from 1-65535.
 8. This will download the docker image onto your server. This will take some time.
 9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
