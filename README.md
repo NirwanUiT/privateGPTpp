@@ -1,7 +1,7 @@
 # privateGPT++
 A repository that builds on the original privateGPT repository. Includes a functional webapp and a few other working models.
 
-privateGPT is built on the repository created and maintained by imartinez. You can find the link to the original repository here: https://github.com/imartinez/privateGPT
+privateGPT++ is built on the repository created and maintained by imartinez. You can find the link to the original repository here: https://github.com/imartinez/privateGPT
 
 ## Function
 privateGPT++ allows you to ask questions to your documents without needing an internet connection. It is completely secure as your data never leaves the execution environment.
