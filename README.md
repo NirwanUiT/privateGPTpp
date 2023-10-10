@@ -38,11 +38,6 @@ The port number can be anything from 1-65535.
 18. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
 19. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
 ```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
-20. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
-    <br>
-    ```git clone https://huggingface.co/microsoft/phi-1_5```
-    <br>
-    It should download the repository of phi_1.5 along with the .bin file which is approximately 3 GB in size.
 
 ## Backend
 
