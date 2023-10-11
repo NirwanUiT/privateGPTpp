@@ -21,7 +21,7 @@ The entire framework is divided into the frontend and the backend architectures.
 The port number can be anything from 1-65535.
 8. This will download the docker image onto your server. This will take some time.
 9. Please make sure to remember your port number as you will require it to run the application later.
-10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
+10. Navigate into the "data" folder. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
 12. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
 13. Additionally run, ```pip install llama-cpp-python==0.1.65 --force-reinstall --upgrade --no-cache-dir```
