@@ -20,22 +20,23 @@ The entire framework is divided into the frontend and the backend architectures.
 7. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number>:<port number>/tcp nvcr.io/nvidia/pytorch:23.07-py3```<br>
 The port number can be anything from 1-65535.
 8. This will download the docker image onto your server. This will take some time.
-9. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
+9. Please make sure to remember your port number as you will require it to run the application later.
 10. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 11. Change directory into "privateGPTpp" using ```cd privateGPTpp```
 12. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
 13. Additionally run, ```pip install llama-cpp-python==0.1.65 --force-reinstall --upgrade --no-cache-dir```
 14. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
 15. And then ```apt-get install git-lfs```
-16. Run the following commands<br>
+16. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
+17. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
    ```wget https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin```<br>
    ```wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/blob/main/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
-17. Go back to the parent directory by ```cd ..```
-18. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-19. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
+18. Go back to the parent directory by ```cd ..```
+19. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
+20. Open ```python app.py```. In the last line, change the port number to the one you specified while running the docker container.<br>
 ```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
 
 ## Backend
