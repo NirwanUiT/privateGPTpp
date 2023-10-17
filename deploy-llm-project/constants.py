@@ -5,7 +5,7 @@ from chromadb.config import Settings
 load_dotenv()
 
 # Define the folder for storing database
-PERSIST_DIRECTORY = r"/home/nba055/storage/mnt/nas1/nba055/LLM_Inter/privateGPT/db"
+PERSIST_DIRECTORY = r"/data/privateGPTpp/db"
 
 # Define the Chroma settings
 CHROMA_SETTINGS = Settings(
