@@ -209,6 +209,28 @@ def calculate_layer_count() -> int | None:
         return 32
     else:
         return (get_gpu_memory()//LAYER_SIZE_MB-LAYERS_TO_REDUCE)
+    
+
+def auto_call_model(query):
+    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    
+    db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
+
+    retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
+
+    # Use LlamaCpp as the model
+    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+    
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=False)
+
+    # Get the answer from the chain
+    res = qa(query)
+    answer = res['result']
+        
+    return answer
+
+
+
 
 def call_model(query, model_type, hide_source):
     # Parse the command line arguments
