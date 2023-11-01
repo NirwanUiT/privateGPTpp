@@ -8,6 +8,7 @@ from langchain.vectorstores import Chroma
 from langchain.llms import GPT4All, LlamaCpp
 from langchain.llms import HuggingFacePipeline
 from torch import cuda as torch_cuda
+import json
 
 from flask_cors import CORS
 
@@ -40,6 +41,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
+
+from newsfetcher import getNews
 
 load_dotenv()
 
@@ -302,67 +305,24 @@ def call_model(query, model_type, hide_source):
 ###################################################################################################################################################
 
 app = Flask(__name__)
-CORS(app)
 
-@app.route("/")
-def hello():
-    #return "<p>Hello, World!</p>"
-    return render_template('index.html')
+@app.route('/')
+def showNews():
+    pass
 
-@app.route("/", methods=['POST'])
-def hello_post():
-    return "<p>Hello, World!</p>"
-    
-
-@app.route("/upload", methods=['POST'])
-def upload():
-    #Get the filename
-    filename = request.files['file'].filename
-    
-    # Upload the file to the source directory
-     
-    file = request.files['file']#.read().decode("latin-1")
-    #print(file)
-    # Save the file to the source directory
-    '''os.chdir(source_directory)
-    with open(filename, "w") as f:
-        f.write(file)'''
-    file.save('/data/privateGPTpp/source_documents/' +(file.filename))
-    ingest()
-    
-    # Return a message to the json file
-    #return {'message': 'File uploaded successfully'}
-    # return a message to be displayed on the "/" webpage and not the "/upload" webpage
-    return redirect(url_for('hello'))
-    
-
-@app.route("/predict", methods=['POST'])
-def predict():
-    #text = str(request.form['text'])
-    # Get the text from the json file
-    data = request.get_json()
-    text = data['prompt']
-    #text = data['input']
-    # Select model from drop down list of index.html
-    model_type = data['model']
-    print(text)
-    print(model_type)
-    
-    # Check if the source directory is empty
-    if not os.listdir(source_directory):
-        print("Source directory is empty. Please upload a file first.")
-    
-    answer, sources = call_model(text, model_type, hide_source=False)
-    print(sources)
-    # From each of the elements in the sources list, split the string at the first colon
-    sources = [source.split(":", 1) for source in sources]
-    # Concatenate the sources list to a string
-    sources = '\n\n'.join([source[1] for source in sources])
-    # Concatenate the sources string to the answer string and add Source: to the beginning of the sources string
-    answer = answer + '\n\nSources :\n\n' + sources
-    # Return the answer and sources as a dict which can be read in json format in javascript
-    return {'answer': answer}
+@app.route('/locations')
+def getLocations():
+    articles = getNews(10)
+    locations = []
+    for article in articles:
+        # Replace querygpt() method with the actual method. This assumes that you only need to send a query string to the LLM as an argument, modify as needed
+        location = querygpt("Find the location of the following event, make the answer as simple as possible:" + str(article))
+        locations.append(location)
+        location_dict = {}
+        for value in locations:
+            location_dict["location"] = value
+        json_string = json.dumps(location_dict)
+    return json_string
 
 if __name__ == '__main__':
-    app.config['UPLOAD_FOLDER'] = 'source_documents'
     app.run(port=3000, host='0.0.0.0', debug=True)
