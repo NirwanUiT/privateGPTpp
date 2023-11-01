@@ -1,4 +1,0 @@
-docker run --rm -it --gpus all -v docker_volume:/mnt/nas1/nba055 -p 6006:6006/tcp -p 8888:8888/tcp nvcr.io/nvidia/pytorch:23.07-py3
-
-Time taken: 8.58047890663147 seconds
-Time taken: 32.609050035476685 seconds

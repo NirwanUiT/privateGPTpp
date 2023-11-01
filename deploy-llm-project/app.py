@@ -343,4 +343,4 @@ def predict():
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'source_documents'
-    app.run(port=4000, host='0.0.0.0', debug=True)
+    app.run(port=3000, host='0.0.0.0', debug=True)
