@@ -3,6 +3,7 @@
         <h1>LATEST NEWS</h1>
         <input class="button" type="submit", value="GET", name="get news" id ="fetcher" />
         <script>
+            //Setup a news fetcher button
             const button = document.getElementById("fetcher");
             button.addEventListener("click", function(){
                 function button(){
@@ -17,6 +18,7 @@
                         }).then(data => {
                             oldHeadings = document.querySelectorAll(".newsLocation");
                             oldParagraphs = document.querySelectorAll(".newsText");
+                            //Remove old news
                             for(let heading in oldHeadings){
                                 heading.remove();
                             }
