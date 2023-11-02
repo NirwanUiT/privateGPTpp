@@ -308,7 +308,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def showNews():
-    pass
+    return render_template('front.html')
 
 @app.route('/locations')
 def getLocations():
