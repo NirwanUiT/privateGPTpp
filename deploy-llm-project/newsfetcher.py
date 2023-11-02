@@ -15,7 +15,6 @@ def getNews(num):
     count = 0
     # Parse each of rss feed entries
     for entry in rssFeed.entries:
-        count += 1
         if (count >= num):
             break
         
@@ -41,9 +40,9 @@ def getNews(num):
             else:
                 finalText += text
         newsList.append(finalText)
+        count += 1
     
     return newsList
-    #print(str(newsList))
 
 #return newsList
 

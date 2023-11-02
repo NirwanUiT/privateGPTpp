@@ -216,19 +216,23 @@ def calculate_layer_count() -> int | None:
 
 def auto_call_model(query):
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+
+    print("\n...processing...")
     
     db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
 
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
 
     # Use LlamaCpp as the model
-    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', temperature=0.3, n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
     
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=False)
 
     # Get the answer from the chain
     res = qa(query)
     answer = res['result']
+
+    print("\nFinished processing!")
         
     return answer
 
@@ -255,7 +259,7 @@ def call_model(query, model_type, hide_source):
             llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
         case "GPT4All":
             #llm = GPT4All(model=model_path, max_tokens=model_n_ctx, backend='gptj', n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = GPT4All(model="data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
+            llm = GPT4All(model="/data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
         case "MedLlama":
             llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/medllama', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
@@ -305,6 +309,7 @@ def call_model(query, model_type, hide_source):
 ###################################################################################################################################################
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def showNews():
@@ -312,17 +317,18 @@ def showNews():
 
 @app.route('/locations')
 def getLocations():
-    articles = getNews(10)
-    locations = []
-    for article in articles:
-        # Replace querygpt() method with the actual method. This assumes that you only need to send a query string to the LLM as an argument, modify as needed
-        location = querygpt("Find the location of the following event, make the answer as simple as possible:" + str(article))
-        locations.append(location)
-        location_dict = {}
-        for value in locations:
-            location_dict["location"] = value
-        json_string = json.dumps(location_dict)
+    articles = getNews(12)
+    location_dict = {}
+    for article in articles: 
+        location = auto_call_model("Find the location of the following event, your response should ONLY contain the location name: " + str(article))
+        summary = auto_call_model("Summarize the following news: " + str(article))
+        location_dict[location] = summary
+
+    json_string = json.dumps(location_dict)
+    print(json_string)
     return json_string
 
 if __name__ == '__main__':
     app.run(port=3000, host='0.0.0.0', debug=True)
+
+    # docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 3000:3000/tcp gptnews

@@ -1,0 +1,49 @@
+<html>
+    <body>
+        <h1>LATEST NEWS</h1>
+        <input class="button" type="submit", value="GET", name="get news" id ="fetcher" />
+        <script>
+            //Setup a news fetcher button
+            const button = document.getElementById("fetcher");
+            button.addEventListener("click", function(){
+                alert("fetching...");
+                fetch('http://127.0.0.1:3000/locations')
+                    .then(response => {
+                        alert("fetched");
+                        if(!response.ok){
+                            //Control jumps to nearest handler on error
+                            throw new Error(`HTTP request failed: error ${response.status} ${response.statusText}`); 
+                        }
+                        // Return processed response
+                        return response.json();
+                    }).then(data => {
+                        oldHeadings = document.querySelectorAll(".newsLocation");
+                        oldParagraphs = document.querySelectorAll(".newsText");
+                        //Remove old news
+                        for(let heading of oldHeadings){
+                            heading.remove();
+                        }
+                        for(let paragraph of oldParagraphs){
+                            paragraph.remove();
+                        }
+                        for(let key in data){
+                            //let container = document.createElement('div');
+                            let location = document.createElement('h2');
+                            location.className = "newsLocation";
+                            location.textContent = key;
+                            let info = document.createElement('p');
+                            info.textContent = data[key];
+                            info.className = "newsText";
+                            document.body.append(location);
+                            document.body.append(info);
+
+                            // container.append(location);
+                            // container.append(info);
+                            //document.body.append(container);
+                        }
+                    })
+                    .catch(error=>{alert(error)});
+            })
+        </script>
+    </body>
+</html>
