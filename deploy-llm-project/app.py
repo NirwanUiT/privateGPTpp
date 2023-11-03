@@ -307,25 +307,54 @@ def call_model(query, model_type, hide_source):
 
 
 ###################################################################################################################################################
+class news_list():
+    '''
+    A news_queue object represents a list of recently fetched news
+    '''
+    def __init__(self, news_num):
+        self.news_list = []
+        self.processed_buffer = {}
+        self.news_num = news_num
+        articles = getNews(news_num)
+        self.update()
+
+    def update(self):
+        articles = getNews(self.news_num)
+        i = 0
+        for article in articles:
+            self.news_list[i] = article
+            i += 1
+
+    def post_news(self, num):
+        article = self.news_list[num]
+        if article in self.processed_buffer:
+            return {self.processed_buffer[article]} 
+        else:
+            location = auto_call_model("Find the location of the following event, your response should ONLY contain the location name: " + str(article))
+            summary = auto_call_model("Summarize the following news: " + str(article))
+            self.processed_buffer[article] = {location : summary}
+            return {location : summary}
+        
+    def length(self):
+        return len(self.news_list)
+
+news = news_list[20]
 
 app = Flask(__name__)
 CORS(app)
-
+news_queue = []
 @app.route('/')
 def showNews():
     return render_template('front.html')
 
-@app.route('/locations')
-def getLocations():
-    articles = getNews(12)
-    location_dict = {}
-    for article in articles: 
-        location = auto_call_model("Find the location of the following event, your response should ONLY contain the location name: " + str(article))
-        summary = auto_call_model("Summarize the following news: " + str(article))
-        location_dict[location] = summary
+@app.route('/news_request')
+def requestNews():
+    return news.length()
 
-    json_string = json.dumps(location_dict)
-    print(json_string)
+@app.route('/fetch_news')
+def fetchNews():
+    article_num = int(request.args.get('article_num'))  
+    json_string = json.dumps(news.post_news(article_num))
     return json_string
 
 if __name__ == '__main__':
