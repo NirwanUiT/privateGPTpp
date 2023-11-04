@@ -373,10 +373,11 @@ class news_list():
             ingest()
             summary = auto_call_model("Summary of the news")
             if("I don't know" in summary or "Unhelpful Answer" in summary):
-                summary = "NONE"
+                parts = summary.split("Unhelpful Answer")
+                summary = parts[0]
 
             location = auto_call_model("Geographical location or country of the event using maximum 3 words")
-            if("I don't know" in summary or "Unhelpful Answer" in summary):
+            if("I don't know" in location or "Unhelpful Answer" in location):
                 location = "NONE"
 
             # Epoch current time (seconds)
