@@ -323,7 +323,8 @@ class news_list():
             # Read the existing JSON data from the buffer file
             with open(self.buffer_file, 'r') as fp:
                 article_data = json.load(fp)
-                for entry in article_data:
+                for article in article_data:
+                    entry = {article : article_data[article]}
                     self.processed_buffer.update(entry)
         except FileNotFoundError:
             print(f"No buffered data")
@@ -351,7 +352,7 @@ class news_list():
         '''
         article = self.news_list[num]
         if article in self.processed_buffer:
-            return {self.processed_buffer[article]["locaion"] : self.processed_buffer[article]["summary"]}
+            return {self.processed_buffer[article]["location"] : self.processed_buffer[article]["summary"]}
         else:
             try:
                 file_name = f"../source_documents/context.txt"
@@ -370,8 +371,13 @@ class news_list():
                 elif os.path.isdir(item_path):
                     shutil.rmtree(item_path)
             ingest()
-            summary = auto_call_model("Short summary of the news")
+            summary = auto_call_model("Summary of the news")
+            if("I don't know" in summary or "Unhelpful Answer" in summary):
+                summary = "NONE"
+
             location = auto_call_model("Geographical location or country of the event using maximum 3 words")
+            if("I don't know" in summary or "Unhelpful Answer" in summary):
+                location = "NONE"
 
             # Epoch current time (seconds)
             timestamp = int(time.time())

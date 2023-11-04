@@ -82,9 +82,15 @@
                             promiseChain = promiseChain.then(() => {
                                 return articleFetch(i);   
                             }).then(data => {
-                                // Display information on the web page
-                                // Replace this code to handle the fetched json data as needed (display on map?) <<<=== !!!
+                                // The loop is unnecessary in current implementation (only one entry is fetched), it is kept to support further changes
                                 for(let key in data){
+                                    //Skip if data is corrupted
+                                    if(key == "NONE" || data[key] == "NONE"){
+                                        continue;
+                                    }
+
+                                    // Display information on the web page
+                                    // Replace this code to handle the fetched json data as needed (display on map?) <<<=== !!!
                                     let location = document.createElement('h2');
                                     location.className = "newsLocation";
                                     location.textContent = key;
