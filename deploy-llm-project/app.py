@@ -8,9 +8,11 @@ from langchain.vectorstores import Chroma
 from langchain.llms import GPT4All, LlamaCpp
 from langchain.llms import HuggingFacePipeline
 from torch import cuda as torch_cuda
+import json
 
 from flask_cors import CORS
 
+import time
 import os
 import argparse
 import time
@@ -40,6 +42,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
+
+from newsfetcher import getNews
 
 load_dotenv()
 
@@ -209,6 +213,33 @@ def calculate_layer_count() -> int | None:
         return 32
     else:
         return (get_gpu_memory()//LAYER_SIZE_MB-LAYERS_TO_REDUCE)
+    
+    
+
+def auto_call_model(query):
+    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+
+    print("\n...processing...")
+    
+    db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
+
+    retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
+
+    # Use LlamaCpp as the model
+    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', temperature=0, top_k = 1, n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+    
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=False)
+
+    # Get the answer from the chain
+    res = qa(query)
+    answer = res['result']
+
+    print("\nFinished processing!")
+        
+    return answer
+
+
+
 
 def call_model(query, model_type, hide_source):
     # Parse the command line arguments
@@ -230,7 +261,7 @@ def call_model(query, model_type, hide_source):
             llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
         case "GPT4All":
             #llm = GPT4All(model=model_path, max_tokens=model_n_ctx, backend='gptj', n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = GPT4All(model="data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
+            llm = GPT4All(model="/data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
         case "MedLlama":
             llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/medllama', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
@@ -279,68 +310,131 @@ def call_model(query, model_type, hide_source):
 
 ###################################################################################################################################################
 
-app = Flask(__name__)
-CORS(app)
+class news_list():
+    '''
+    news_list object represents a list of recently fetched news
+    '''
+    def __init__(self, news_num):
+        self.news_list = []
+        self.processed_buffer = {}
+        self.buffer_file = "./article_buffer.json"
 
-@app.route("/")
-def hello():
-    #return "<p>Hello, World!</p>"
-    return render_template('index.html')
+        try:
+            # Read the existing JSON data from the buffer file
+            with open(self.buffer_file, 'r') as fp:
+                article_data = json.load(fp)
+                for article in article_data:
+                    entry = {article : article_data[article]}
+                    self.processed_buffer.update(entry)
+        except FileNotFoundError:
+            print(f"No buffered data")
 
-@app.route("/", methods=['POST'])
-def hello_post():
-    return "<p>Hello, World!</p>"
-    
+        self.news_num = news_num
+        print(f"Creating a new article list")
+        self.update()
 
-@app.route("/upload", methods=['POST'])
-def upload():
-    #Get the filename
-    filename = request.files['file'].filename
-    
-    # Upload the file to the source directory
-     
-    file = request.files['file']#.read().decode("latin-1")
-    #print(file)
-    # Save the file to the source directory
-    '''os.chdir(source_directory)
-    with open(filename, "w") as f:
-        f.write(file)'''
-    file.save('/data/privateGPTpp/source_documents/' +(file.filename))
-    ingest()
-    
-    # Return a message to the json file
-    #return {'message': 'File uploaded successfully'}
-    # return a message to be displayed on the "/" webpage and not the "/upload" webpage
-    return redirect(url_for('hello'))
-    
+    def update(self):
+        '''
+        Repopulate the article list
+        '''
+        print(f"Updating the list: fetching {self.news_num} news...\n")
+        articles = getNews(self.news_num)
+        i = 0
+        for article in articles:
+            self.news_list.append(article)
+            self.post_news(i)
+            i += 1
 
-@app.route("/predict", methods=['POST'])
-def predict():
-    #text = str(request.form['text'])
-    # Get the text from the json file
-    data = request.get_json()
-    text = data['prompt']
-    #text = data['input']
-    # Select model from drop down list of index.html
-    model_type = data['model']
-    print(text)
-    print(model_type)
+    def post_news(self, num):
+        '''
+        Return {location:summary} for an aricle;
+        If not buffered, call llm to process the article
+        '''
+        article = self.news_list[num]
+        if article in self.processed_buffer:
+            return {self.processed_buffer[article]["location"] : self.processed_buffer[article]["summary"]}
+        else:
+            try:
+                file_name = f"../source_documents/context.txt"
+                with open(file_name, "w") as fp:
+                    fp.write(article)
+            except FileNotFoundError:
+                print(f"Could not create file {file_name}")
+                exit()
+            # Manually(?!) clear persistent data in the db directory to get rid of the old context
+            directory_path = '../db'
+            all_contents = os.listdir(directory_path)
+            for item in all_contents:
+                item_path = os.path.join(directory_path, item)
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+            ingest()
+            summary = auto_call_model("Summary of the news")
+            if("I don't know" in summary or "Unhelpful Answer" in summary):
+                parts = summary.split("Unhelpful Answer")
+                summary = parts[0]
+
+            location = auto_call_model("Geographical location or country of the event using maximum 3 words")
+            if("I don't know" in location or "Unhelpful Answer" in location):
+                location = "NONE"
+
+            # Epoch current time (seconds)
+            timestamp = int(time.time())
+            
+            # 36 hours in seconds
+            storing_time = 36*60*60
+
+            # Remove entries older then 36 hours
+            if (len(self.processed_buffer) > 100):
+                for article in self.processed_buffer:
+                    if(timestamp - article["timestamp"] >= storing_time):
+                        self.processed_buffer.pop(article)
+
+            self.processed_buffer[article] = {"location" : location , "summary" : summary, "timestamp" : timestamp}
+
+            # Write the updated data back to the file
+            with open(self.buffer_file, 'w') as fp:
+                json.dump(self.processed_buffer, fp, indent=4)
+
+            return {location : summary}
+
+    def length(self):
+        return len(self.news_list)
+
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
     
-    # Check if the source directory is empty
-    if not os.listdir(source_directory):
-        print("Source directory is empty. Please upload a file first.")
+    # Change number of fetched news here
+    news = news_list(20)
+
+    @app.route('/')
+    def showNews():
+        return render_template('front.html')
     
-    answer, sources = call_model(text, model_type, hide_source=False)
-    print(sources)
-    # From each of the elements in the sources list, split the string at the first colon
-    sources = [source.split(":", 1) for source in sources]
-    # Concatenate the sources list to a string
-    sources = '\n\n'.join([source[1] for source in sources])
-    # Concatenate the sources string to the answer string and add Source: to the beginning of the sources string
-    answer = answer + '\n\nSources :\n\n' + sources
-    # Return the answer and sources as a dict which can be read in json format in javascript
-    return {'answer': answer}
+    # '/news_request' endpoint returnes the number of news fetched in the backend
+    @app.route('/news_request')
+    def requestNews():
+        print(str(news.length()))
+        return str(news.length())
+    
+    # '/fetch_news' endpoint takes a number and returns a corresponding article 
+    @app.route('/fetch_news')
+    def fetchNews():
+        article_num = int(request.args.get('article_num'))
+        json_string = json.dumps(news.post_news(article_num))
+        return json_string
+
+    return app
+        
+
 
 if __name__ == '__main__':
-    app.config['UPLOAD_FOLDER'] = 'source_documents'
-    app.run(port=4000, host='0.0.0.0', debug=True)
+    app = create_app()
+    app.run(port=3000, host='0.0.0.0', debug=True)
+    
+    
+
+    # docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 3000:3000/tcp gptnews

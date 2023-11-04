@@ -1,0 +1,111 @@
+<html>
+    <body>
+        <h1>LATEST NEWS</h1>
+        <input class="button" type="submit", value="GET", name="get news" id ="fetcher" />
+        <script>
+
+            // Fetch function to get an article
+            function articleFetch(num){
+                return new Promise((resolve, reject)=>{
+
+                    // Specify how many times a GET request should be attempted
+                    const maxRetries = 1;
+                    let retries = 0;
+
+                    // Define a fetch attempt function
+                    function fetchAttempt() {
+                        fetch(`http://127.0.0.1:3000/fetch_news?article_num=${num}`)
+
+                        .then(response => {
+                            if(!response.ok){
+                                // Control jumps to nearest handler on error
+                                throw new Error(`HTTP request failed: error ${response.status} ${response.statusText}`);
+                            }
+
+                            // Return processed response
+                            return response.json();
+
+                        }).then(data => {
+                            resolve(data);
+
+                        }).catch(error => {
+                            // Retry with a delay if request failed
+                            if(retries < maxRetries) {
+                                retries++;
+                                setTimeout(fetchAttempt, 10000);
+                            }
+                            // Reject if all retries failed
+                            else{
+                                reject(error);
+                            }
+                        })
+                    }
+                    // Call the fetchAttempt function
+                    fetchAttempt()
+                });
+            }
+
+            // Setup a news fetcher button
+            const button = document.getElementById("fetcher");
+            button.addEventListener("click", function(){
+                fetch(`http://127.0.0.1:3000/news_request`)
+
+                    .then(response => {
+                        if(!response.ok){
+                            // Control jumps to nearest handler on error
+                            throw new Error(`HTTP request failed: error ${response.status} ${response.statusText}`); 
+                        }
+                        // Return processed response
+                        return response.text();
+
+                    }).then(response =>{
+                        num = parseInt(response);
+                        // Remove old news
+                        oldHeadings = document.querySelectorAll(".newsLocation");
+                        oldParagraphs = document.querySelectorAll(".newsText");
+
+                        for(let heading of oldHeadings){
+                            heading.remove();
+                        }
+                        for(let paragraph of oldParagraphs){
+                            paragraph.remove();
+                        }
+
+                        // Chain fetch calls:
+
+                        // Dummy promise to initiate a chain
+                        let promiseChain = Promise.resolve();
+
+                        // Send GET request for each article
+                        for (let i = 0; i < num; i++) {
+
+                            promiseChain = promiseChain.then(() => {
+                                return articleFetch(i);   
+                            }).then(data => {
+                                // The loop is unnecessary in current implementation (only one entry is fetched), it is kept to support further changes
+                                for(let key in data){
+                                    //Skip if data is corrupted
+                                    if(key == "NONE" || data[key] == "NONE"){
+                                        continue;
+                                    }
+
+                                    // Display information on the web page
+                                    // Replace this code to handle the fetched json data as needed (display on map?) <<<=== !!!
+                                    let location = document.createElement('h2');
+                                    location.className = "newsLocation";
+                                    location.textContent = key;
+                                    let info = document.createElement('p');
+                                    info.textContent = data[key];
+                                    info.className = "newsText";
+                                    document.body.append(location);
+                                    document.body.append(info);
+                                }
+                        }).catch(error => {throw error;});
+                        }
+                    })
+                    .catch(error=>{alert(error)});
+            })
+
+        </script>
+    </body>
+</html>
