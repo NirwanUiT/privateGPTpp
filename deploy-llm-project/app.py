@@ -12,6 +12,7 @@ import json
 
 from flask_cors import CORS
 
+import time
 import os
 import argparse
 import time
@@ -213,6 +214,7 @@ def calculate_layer_count() -> int | None:
     else:
         return (get_gpu_memory()//LAYER_SIZE_MB-LAYERS_TO_REDUCE)
     
+    
 
 def auto_call_model(query):
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
@@ -224,7 +226,7 @@ def auto_call_model(query):
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
 
     # Use LlamaCpp as the model
-    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', temperature=0.3, n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+    llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', temperature=0, top_k = 1, n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
     
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=False)
 
@@ -307,57 +309,125 @@ def call_model(query, model_type, hide_source):
 
 
 ###################################################################################################################################################
+
 class news_list():
     '''
-    A news_queue object represents a list of recently fetched news
+    news_list object represents a list of recently fetched news
     '''
     def __init__(self, news_num):
         self.news_list = []
         self.processed_buffer = {}
+        self.buffer_file = "./article_buffer.json"
+
+        try:
+            # Read the existing JSON data from the buffer file
+            with open(self.buffer_file, 'r') as fp:
+                article_data = json.load(fp)
+                for entry in article_data:
+                    self.processed_buffer.update(entry)
+        except FileNotFoundError:
+            print(f"No buffered data")
+
         self.news_num = news_num
-        articles = getNews(news_num)
+        print(f"Creating a new article list")
         self.update()
 
     def update(self):
+        '''
+        Repopulate the article list
+        '''
+        print(f"Updating the list: fetching {self.news_num} news...\n")
         articles = getNews(self.news_num)
         i = 0
         for article in articles:
-            self.news_list[i] = article
+            self.news_list.append(article)
+            self.post_news(i)
             i += 1
 
     def post_news(self, num):
+        '''
+        Return {location:summary} for an aricle;
+        If not buffered, call llm to process the article
+        '''
         article = self.news_list[num]
         if article in self.processed_buffer:
-            return {self.processed_buffer[article]} 
+            return {self.processed_buffer[article]["locaion"] : self.processed_buffer[article]["summary"]}
         else:
-            location = auto_call_model("Find the location of the following event, your response should ONLY contain the location name: " + str(article))
-            summary = auto_call_model("Summarize the following news: " + str(article))
-            self.processed_buffer[article] = {location : summary}
+            try:
+                file_name = f"../source_documents/context.txt"
+                with open(file_name, "w") as fp:
+                    fp.write(article)
+            except FileNotFoundError:
+                print(f"Could not create file {file_name}")
+                exit()
+            # Manually(?!) clear persistent data in the db directory to get rid of the old context
+            directory_path = '../db'
+            all_contents = os.listdir(directory_path)
+            for item in all_contents:
+                item_path = os.path.join(directory_path, item)
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+            ingest()
+            summary = auto_call_model("Short summary of the news")
+            location = auto_call_model("Geographical location or country of the event using maximum 3 words")
+
+            # Epoch current time (seconds)
+            timestamp = int(time.time())
+            
+            # 36 hours in seconds
+            storing_time = 36*60*60
+
+            # Remove entries older then 36 hours
+            if (len(self.processed_buffer) > 100):
+                for article in self.processed_buffer:
+                    if(timestamp - article["timestamp"] >= storing_time):
+                        self.processed_buffer.pop(article)
+
+            self.processed_buffer[article] = {"location" : location , "summary" : summary, "timestamp" : timestamp}
+
+            # Write the updated data back to the file
+            with open(self.buffer_file, 'w') as fp:
+                json.dump(self.processed_buffer, fp, indent=4)
+
             return {location : summary}
-        
+
     def length(self):
         return len(self.news_list)
 
-news = news_list[20]
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
+    
+    # Change number of fetched news here
+    news = news_list(20)
 
-app = Flask(__name__)
-CORS(app)
-news_queue = []
-@app.route('/')
-def showNews():
-    return render_template('front.html')
+    @app.route('/')
+    def showNews():
+        return render_template('front.html')
+    
+    # '/news_request' endpoint returnes the number of news fetched in the backend
+    @app.route('/news_request')
+    def requestNews():
+        print(str(news.length()))
+        return str(news.length())
+    
+    # '/fetch_news' endpoint takes a number and returns a corresponding article 
+    @app.route('/fetch_news')
+    def fetchNews():
+        article_num = int(request.args.get('article_num'))
+        json_string = json.dumps(news.post_news(article_num))
+        return json_string
 
-@app.route('/news_request')
-def requestNews():
-    return news.length()
+    return app
+        
 
-@app.route('/fetch_news')
-def fetchNews():
-    article_num = int(request.args.get('article_num'))  
-    json_string = json.dumps(news.post_news(article_num))
-    return json_string
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(port=3000, host='0.0.0.0', debug=True)
+    
+    
 
     # docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 3000:3000/tcp gptnews
