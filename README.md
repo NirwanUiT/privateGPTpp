@@ -29,8 +29,7 @@ The entire framework is divided into the frontend and the backend architectures.
 15. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
-   ```wget https://get.station307.com/JNSExca1lch/ggml-gpt4all-j-v1.3-groovy.bin```<br>
-   ```wget https://get.station307.com/FuZv16G4Jx5/llama-2-7b-chat.ggmlv3.q4_0.bin```<br>
+   ```git clone https://huggingface.co/nvidia/Minitron-4B-Base```<br>
    This downloads the LlamaCpp and GPT4All models into your model directory.
 16. Go back to the parent directory by ```cd ..```
 17. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
