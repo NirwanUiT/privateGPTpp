@@ -6,7 +6,7 @@ privateGPT is built on the repository created and maintained by imartinez. You c
 ## Function
 privateGPT allows you to ask questions to your documents without needing an internet connection. It is completely secure as your data never leaves the execution environment.
 Additionally we have introduced a frontend that allows you to host a simple webapp interface on your local server. 
-Apart from the two models introduced in the original privateGPT repository, we have given you access to 4 other models, namely MedLlama, Microsoft phi_1.5, Vicuna 7b and CodeLlama.
+Apart from the two models introduced in the original privateGPT repository, we have given you access to 6 different models, namely: ```opt-iml-max-1.3b, gpt-neo-1.3B, opt-2.7b, Minitron-4B-Base, h2o-danube3-4b-chat, TinyMistral-6x248M-Instruct```
 
 The entire framework is divided into the frontend and the backend architectures. We shall go into them briefly in the following sections.
 
@@ -30,7 +30,7 @@ The entire framework is divided into the frontend and the backend architectures.
    ```mkdir models```<br>
    ```cd models```<br>
    ```git clone https://huggingface.co/nvidia/Minitron-4B-Base```<br>
-   This downloads the LlamaCpp and GPT4All models into your model directory.
+   This downloads the Minitron into your model directory.
 16. Go back to the parent directory by ```cd ..```
 17. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
 18. Run ```python app.py```
