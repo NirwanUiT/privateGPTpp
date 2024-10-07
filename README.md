@@ -69,7 +69,13 @@ The work done in the backend consists of primarily first processing the uploaded
 3. Here, we can select different kinds of models for our use case.<br>
    For Minitron - ```llm = llm = HuggingFacePipeline.from_model_id(model_id='/data/assgn_2/privateGPTpp/models/Minitron-4B-Base', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})```<br>
-   
+   The following models worked for me but you are free to try any other models<br>
+   1. ```opt-iml-max-1.3b```
+   2. ```gpt-neo-1.3B```
+   3. ```opt-2.7b```
+   4. ```Minitron-4B-Base```
+   5. ```h2o-danube3-4b-chat```
+TinyMistral-6x248M-Instruct
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
    a. Go to the [https://huggingface.co/](https://huggingface.co/collections/adamelliotfields/small-language-models-65d8f8200733541e06582d44)<br>
    b. This website hosts a huge collection of models for LLMs and other purposes.<br>
@@ -95,6 +101,8 @@ The frontend is created using Flask, HTML, CSS and Javascript.
 It has four primary functions
 
 ## Miscellanous
+
+In case you want to use the OpenAI backend, please access the ```openai``` folder. The key will be provided to you in class.<br>
 
 For the purpose of hyperparameterization, you can tune the following hyperparameters:
 1. The batch size: model_n_batch(8)
