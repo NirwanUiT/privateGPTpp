@@ -67,12 +67,11 @@ The work done in the backend consists of primarily first processing the uploaded
 1. The function "call_model" takes the query/prompt as input and calls your selected LLM model on the query to generate an output.
 2. We will use a chain here. A chain in the context of Langchain is simply a pipeline that takes your LLM, prompt, relevant information, etc to predict an answer.
 3. Here, we can select different kinds of models for our use case.<br>
-   For GPT4All - ```llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)```<br>
-   For LlamaCpp - ```llm = LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())```<br>
-   Only LlamaCpp can use a GPU. You can adjust further parameters of these classes by reading through their documentation.<br>
-   Please note that due to size restrictions, these are the only two models provided to you.<br>
+   For Minitron - ```llm = llm = HuggingFacePipeline.from_model_id(model_id='/data/assgn_2/privateGPTpp/models/Minitron-4B-Base', task="text-generation", device=1,
+                                        model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})```<br>
+   
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
-   a. Go to the https://huggingface.co/<br>
+   a. Go to the [https://huggingface.co/](https://huggingface.co/collections/adamelliotfields/small-language-models-65d8f8200733541e06582d44)<br>
    b. This website hosts a huge collection of models for LLMs and other purposes.<br>
    c. Search for any model (as an example I will be showcasing the phi_1.5 model). Click on "Clone this repository".<br>
    
@@ -97,7 +96,7 @@ It has four primary functions
 
 ## Miscellanous
 
-For the purpose of hyperparameterization for GPT4All and LlamaCpp, you can tune the following hyperparameters:
+For the purpose of hyperparameterization, you can tune the following hyperparameters:
 1. The batch size: model_n_batch(8)
 2. Number of chunks to be used while retrieval: target_source_chunks(4)
 3. The number of tokens: model_n_ctx(2000)
