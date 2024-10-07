@@ -75,7 +75,8 @@ The work done in the backend consists of primarily first processing the uploaded
    3. ```opt-2.7b```
    4. ```Minitron-4B-Base```
    5. ```h2o-danube3-4b-chat```
-TinyMistral-6x248M-Instruct
+   6. ```TinyMistral-6x248M-Instruct```
+   <br>
    If you wish to use any other model from HuggingFaceHub, please follow the instructions below:<br>
    a. Go to the [https://huggingface.co/](https://huggingface.co/collections/adamelliotfields/small-language-models-65d8f8200733541e06582d44)<br>
    b. This website hosts a huge collection of models for LLMs and other purposes.<br>
