@@ -13,27 +13,17 @@ The entire framework is divided into the frontend and the backend architectures.
 ## Getting started
 
 1. Open Visual Studio Code and connect to the server. For this, you need to install a few extensions. a) Remote-SSH b) Remote Explorer. After they are installed, press F1 and you will need to enter the details provided to you.
-2. Find your port number using ```id -u```
-3. At first you will be prompted to enter your user id which should be in the form: ```ssh <host name>@vs-c2.cs.uit.no```
-5. You will be asked to provide your config file.
-6. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
-7. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
-8. After typing your password, a new window shall open.
-9. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
+2. At first you will be prompted to enter your user id which should be in the form: ```ssh <host name>@vs-c2.cs.uit.no```
+3. You will be asked to provide your config file.
+4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
+5. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
+6. After typing your password, a new window shall open.
+7. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
+8. Here typing in the following code to check which port in the server is opened to you (we name it port number): ```id -u```. Please note that this port is unique for each person. It means that we can obtain information from server via this port.
+9. We log out the server and re-login by using ```ssh -L <port number>:localhost:<port number> user@vs-c2.cs.uit.no```
 10. Type the following : ```mkdir $HOME/data```
-11. To make the port forward work each user will have to find 2 unique ports, to make this easy have them run these commands on the server before starting docker:
-to find port 1, unix user id:
-
-```id -u```
-
-to find port 2, unix user id + 100:
-
-```expr $(id -u) + 100```
-
-13. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get and run:
-```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 31101:{user_defined_port}/tcp nirwan1998/privategptpp:latest```
-The {user_defined_port} can be any 4 digit number. It has to be unique for each user.
-15. This will download the docker image onto your server. This will take some time.
+11. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number in step 8>:4000/tcp nirwan1998/privategptpp:latest``` (Why we have port 4000 here is that the code we are going to pull from github will be deployed via container port 4000, you can choose a random port other than 4000, but meanwhile please remember to modify it in app.py file which is in the repo of step 14).
+12. This will download the docker image onto your server. This will take some time.
 16. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
 17. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
 18. Change directory into "privateGPTpp" using ```cd privateGPTpp```
@@ -47,8 +37,11 @@ The {user_defined_port} can be any 4 digit number. It has to be unique for each 
    This downloads the Minitron into your model directory.
 23. Go back to the parent directory by ```cd ..```
 24. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-25. Run ```python app.py```
-26. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+25. Use ```vim app.py``` to open app.py file. In the last line, change the port number to the one you specified while running the docker container at step 11 if you use port other than 4000.<br>
+```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
+26. Run ```python app.py```
+27. You can check the frontend on your local machine by typing ```http://localhost:<portnumber>``` in the browser (The port number is the same in step 9).
+28. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
     <br>
