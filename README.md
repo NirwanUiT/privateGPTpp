@@ -30,7 +30,7 @@ to find port 2, unix user id + 100:
 
 ```expr $(id -u) + 100```
 
-13. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get:
+13. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get and run:
 ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 31101:6006/tcp -p 31201:8888/tcp nirwan1998/privategptpp:latest```
 14. This will download the docker image onto your server. This will take some time.
 15. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
