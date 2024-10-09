@@ -22,28 +22,32 @@ The entire framework is divided into the frontend and the backend architectures.
 9. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
 10. Type the following : ```mkdir $HOME/data```
 11. To make the port forward work each user will have to find 2 unique ports, to make this easy have them run these commands on the server before starting docker:
-to find port 1, unix user id
-id -u
-to find port 2, unix user id + 100
-expr $(id -u) + 100
-12. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get:
+to find port 1, unix user id:
+
+```id -u```
+
+to find port 2, unix user id + 100:
+
+```expr $(id -u) + 100```
+
+13. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get:
 ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 31101:6006/tcp -p 31201:8888/tcp nirwan1998/privategptpp:latest```
-13. This will download the docker image onto your server. This will take some time.
-14. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
-15. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
-16. Change directory into "privateGPTpp" using ```cd privateGPTpp```
-17. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
-18. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
-19. And then ```apt-get install git-lfs```
-20. Run the following commands<br>
+14. This will download the docker image onto your server. This will take some time.
+15. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
+16. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
+17. Change directory into "privateGPTpp" using ```cd privateGPTpp```
+18. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
+19. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
+20. And then ```apt-get install git-lfs```
+21. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
    ```git clone https://huggingface.co/nvidia/Minitron-4B-Base```<br>
    This downloads the Minitron into your model directory.
-21. Go back to the parent directory by ```cd ..```
-22. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-23. Run ```python app.py```
-24. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+22. Go back to the parent directory by ```cd ..```
+23. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
+24. Run ```python app.py```
+25. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
     <br>
