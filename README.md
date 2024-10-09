@@ -22,9 +22,9 @@ The entire framework is divided into the frontend and the backend architectures.
 9. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
 10. Type the following : ```mkdir $HOME/data```
 11. To make the port forward work each user will have to find 2 unique ports, to make this easy have them run these commands on the server before starting docker:
-# to find port 1, unix user id
+to find port 1, unix user id
 id -u
-# to find port 2, unix user id + 100
+to find port 2, unix user id + 100
 expr $(id -u) + 100
 12. Now substitute these port values into the docker command, if port1 = 31101 and port2 = 31201 then you get:
 ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 31101:6006/tcp -p 31201:8888/tcp nirwan1998/privategptpp:latest```
