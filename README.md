@@ -13,29 +13,31 @@ The entire framework is divided into the frontend and the backend architectures.
 ## Getting started
 
 1. Open Visual Studio Code and connect to the server. For this, you need to install a few extensions. a) Remote-SSH b) Remote Explorer. After they are installed, press F1 and you will need to enter the details provided to you.
-2. At first you will be prompted to enter your user id which should be in the form: ```ssh <host name>@vs-c2.cs.uit.no```
-3. You will be asked to provide your config file.
-4. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
-5. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
-6. After typing your password, a new window shall open. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
-7. Type the following : ```mkdir $HOME/data```
-8. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest``` or ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest```
-9. This will download the docker image onto your server. This will take some time.
-10. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
-11. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
-12. Change directory into "privateGPTpp" using ```cd privateGPTpp```
-13. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
-14. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
-15. And then ```apt-get install git-lfs```
-16. Run the following commands<br>
+2. Find your port number using ```id -u```
+3. At first you will be prompted to enter your user id which should be in the form: ```ssh -L {port_number}:localhost:{port_number} <host name>@vs-c2.cs.uit.no```
+4. Later you will can access the frontend at ```http://localhost:{port_number}```
+5. You will be asked to provide your config file.
+6. This should add your host to the list of available servers. Steps 1-3 are only a first time requirement.
+7. Now press F1 and you should see your host, namely "vs-c2.cs.uit.no". You will be prompted to type your password.
+8. After typing your password, a new window shall open. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
+9. Type the following : ```mkdir $HOME/data```
+10. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v /mnt/nas1/{your uit mail username}:/data -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest``` or ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p 6006:6006/tcp -p 8888:8888/tcp nirwan1998/privategptpp:latest```
+11. This will download the docker image onto your server. This will take some time.
+12. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
+13. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
+14. Change directory into "privateGPTpp" using ```cd privateGPTpp```
+15. Install the packages required by running ```pip install -r requirements.txt``` in the terminal.
+16. Next run ```curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash```
+17. And then ```apt-get install git-lfs```
+18. Run the following commands<br>
    ```mkdir models```<br>
    ```cd models```<br>
    ```git clone https://huggingface.co/nvidia/Minitron-4B-Base```<br>
    This downloads the Minitron into your model directory.
-17. Go back to the parent directory by ```cd ..```
-18. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
-19. Run ```python app.py```
-20. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
+19. Go back to the parent directory by ```cd ..```
+20. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
+21. Run ```python app.py```
+22. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
     <br>
     ```git clone https://huggingface.co/microsoft/phi-1_5```
     <br>
