@@ -20,7 +20,7 @@ The entire framework is divided into the frontend and the backend architectures.
 6. After typing your password, a new window shall open.
 7. Open a new terminal in the new window(which is basically the giving you access to the server) from the terminal tab above.
 8. Here typing in the following code to check which port in the server is opened to you (we name it port number): ```id -u```. Please note that this port is unique for each person. It means that we can obtain information from server via this port.
-9. We log out the server and re-login by using ```ssh -L <port number>:localhost:<port number> user@vs-c2.cs.uit.no```
+9. We log out the server by ctrl+D and re-login by using ```ssh -L <port number>:localhost:<port number> user@vs-c2.cs.uit.no```
 10. Type the following : ```mkdir $HOME/data```
 11. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number in step 8>:4000/tcp nirwan1998/privategptpp:latest``` (Why we have port 4000 here is that the code we are going to pull from github will be deployed via container port 4000, you can choose a random port other than 4000, but meanwhile please remember to modify it in app.py file which is in the repo of step 14).
 12. This will download the docker image onto your server. This will take some time.
