@@ -22,7 +22,7 @@ The entire framework is divided into the frontend and the backend architectures.
 8. Here typing in the following code to check which port in the server is opened to you (we name it port number): ```id -u```. Please note that this port is unique for each person. It means that we can obtain information from server via this port.
 9. We log out the server by ctrl+D and re-login by using ```ssh -L <port number>:localhost:<port number> user@vs-c2.cs.uit.no```
 10. Type the following : ```mkdir $HOME/data```
-11. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number in step 8>:4000/tcp nirwan1998/privategptpp:latest``` (Why we have port 4000 here is that the code we are going to pull from github will be deployed via container port 4000, you can choose a random port other than 4000, but meanwhile please remember to modify it in app.py file which is in the repo of step 14).
+11. Enter the following code in the bash terminal: ```docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 --rm -it -v $HOME/data:/data -p <port number in step 8>:4000/tcp nirwan1998/privategptpp:latest``` (The reason why the second port is 4000 is that the code we are going to pull from github will be deployed via container port 4000, you can choose a random port other than 4000, but meanwhile please remember to modify it in app.py file which is in the repo of step 14).
 12. This will download the docker image onto your server. This will take some time.
 16. After the image is downloaded, you will find yourself within the image environment. This is your working environment. If you make any changes to the libraries installed in the environment, make sure to commit the changes to the docker image. This can be done by: ```docker commit <container id> <your_image_name>```
 17. Now you can clone this repository into your folder using ```git clone https://github.com/NirwanUiT/privateGPTpp.git```
@@ -38,7 +38,7 @@ The entire framework is divided into the frontend and the backend architectures.
 23. Go back to the parent directory by ```cd ..```
 24. Further change directory into "deploy-llm-project" by ```cd deploy-llm-project```
 25. Use ```vim app.py``` to open app.py file. In the last line, change the port number to the one you specified while running the docker container at step 11 if you use port other than 4000.<br>
-```app.run(port=<port number>, host='0.0.0.0', debug=True)```.
+```app.run(port=4000, host='0.0.0.0', debug=True)```.
 26. Run ```python app.py```
 27. You can check the frontend on your local machine by typing ```http://localhost:<portnumber>``` in the browser (The port number is the same in step 9).
 28. TO CHECK IF DOCKER ALLOWS DOWNLOADING OF LFS FILES PLEASE RUN THE FOLLOWING IN THE "models" FOLDER:
