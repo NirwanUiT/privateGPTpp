@@ -1,3 +1,5 @@
+#pip install openai==0.28, tiktoken
+
 from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -41,10 +43,15 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
 
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import openai
+from langchain.llms import HuggingFaceHub
+from langchain.embeddings.openai import OpenAIEmbeddings
+
 load_dotenv()
 
 embeddings_model_name = 'all-MiniLM-L6-v2'#os.environ.get("EMBEDDINGS_MODEL_NAME")
-persist_directory = os.environ.get('PERSIST_DIRECTORY')
+persist_directory = 'data/privateGPTpp/db'#os.environ.get('PERSIST_DIRECTORY')
 
 
 model_n_batch = 8
@@ -52,11 +59,20 @@ target_source_chunks = 4
 model_n_ctx = 2000
 
 # Load environment variables
-persist_directory = os.environ.get('PERSIST_DIRECTORY')
-source_directory = r'/data/privateGPT-gpu/source_documents'
-embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME')
+#persist_directory = os.environ.get('PERSIST_DIRECTORY')
+source_directory = r'/data/privateGPTpp/source_documents'
+#embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME')
 chunk_size = 500
 chunk_overlap = 50
+
+OPENAI_API_KEY="SampleKey" ###### Make sure to replace this with your OpenAI API key that is provided to you in the canvas page
+
+# Ensure OPENAI_API_KEY is loaded from environment variables
+openai_api_key = OPENAI_API_KEY
+if not openai_api_key:
+    raise ValueError("Did not find openai_api_key, please add an environment variable `OPENAI_API_KEY` which contains it, or pass `openai_api_key` as a named parameter.")
+
+openai.api_key = openai_api_key
 
 from constants import CHROMA_SETTINGS
 
@@ -100,6 +116,12 @@ LOADER_MAPPING = {
     ".txt": (TextLoader, {"encoding": "utf8"}),
     # Add more mappings for other file extensions and loaders as needed
 }
+
+def document_to_json(doc):
+    return {
+        "page_content": doc.page_content,
+        "metadata": doc.metadata
+    }
 
 def load_single_document(file_path: str) -> List[Document]:
     ext = "." + file_path.rsplit(".", 1)[-1]
@@ -167,7 +189,7 @@ def does_vectorstore_exist(persist_directory: str) -> bool:
 
 def ingest():
     # Create embeddings
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    '''embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
 
     if does_vectorstore_exist(persist_directory):
         # Update and store locally vectorstore
@@ -176,14 +198,36 @@ def ingest():
         collection = db.get()
         texts = process_documents([metadata['source'] for metadata in collection['metadatas']])
         print(f"Creating embeddings. May take some minutes...")
-        db.add_documents(texts)
+        #db.add_documents(texts)
+        db.add_documents([Document(page_content=str(text), metadata={}) for text in texts])
     else:
         # Create and store locally vectorstore
         print("Creating new vectorstore")
         texts = process_documents()
         print(texts)
         print(f"Creating embeddings. May take some minutes...")
-        db = Chroma.from_documents(texts, embedding=embeddings, persist_directory=persist_directory, client_settings=CHROMA_SETTINGS)
+        #db = Chroma.from_documents(texts, embedding=embeddings, persist_directory=persist_directory, client_settings=CHROMA_SETTINGS)
+        db = Chroma.from_documents([Document(page_content=str(text), metadata={}) for text in texts], embedding=embeddings, persist_directory=persist_directory, client_settings=CHROMA_SETTINGS)
+    db.persist()
+    db = None'''
+    
+    # Create openai embeddings
+    embedding_function = OpenAIEmbeddings(openai_api_key=openai_api_key)
+    if does_vectorstore_exist(persist_directory):
+        # Update and store locally vectorstore
+        print(f"Appending to existing vectorstore at {persist_directory}")
+        db = Chroma(persist_directory=persist_directory, embedding_function=embedding_function, client_settings=CHROMA_SETTINGS)
+        collection = db.get()
+        texts = process_documents([metadata['source'] for metadata in collection['metadatas']])
+        print(f"Creating embeddings. May take some minutes...")
+        db.add_documents([Document(page_content=str(text), metadata={"source": "source_placeholder"}) for text in texts])
+    else:
+        # Create and store locally vectorstore
+        print("Creating new vectorstore")
+        texts = process_documents()
+        print(texts)
+        print(f"Creating embeddings. May take some minutes...")
+        db = Chroma.from_documents([Document(page_content=str(text), metadata={"source": "source_placeholder"}) for text in texts], embedding=embedding_function, persist_directory=persist_directory, client_settings=CHROMA_SETTINGS)
     db.persist()
     db = None
 
@@ -211,11 +255,27 @@ def calculate_layer_count() -> int | None:
         return (get_gpu_memory()//LAYER_SIZE_MB-LAYERS_TO_REDUCE)
 
 def call_model(query, model_type, hide_source):
-    # Parse the command line arguments
-    #args = parse_arguments()
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
     
-    db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
+    
+    #db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
+    
+    # Function to create embeddings using OpenAI API
+    '''def create_embeddings(texts):
+        try:
+            return [openai.Embedding.create(input=text, engine="text-similarity-davinci-001")['data'][0]['embedding'] for text in texts]
+        except openai.error.OpenAIError as e:
+            print(f"Error creating embeddings: {e}")
+            return []
+
+    # Create embeddings using OpenAI API
+    texts = process_documents()
+    
+    embeddings = create_embeddings(texts)'''
+    if not does_vectorstore_exist(persist_directory):
+        ingest()
+    embedding_function = OpenAIEmbeddings(openai_api_key=openai_api_key)
+    db = Chroma(persist_directory=persist_directory, embedding_function=embedding_function, client_settings=CHROMA_SETTINGS)
+    
 
     print(f"Ingestion complete! You can now run privateGPT.py to query your documents")
     #callbacks = [] if args.mute_stream else [StreamingStdOutCallbackHandler()]
@@ -223,28 +283,37 @@ def call_model(query, model_type, hide_source):
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
     # activate/deactivate the streaming StdOut callback for LLMs
     #callbacks = [] if args.mute_stream else [StreamingStdOutCallbackHandler()]
-    # Prepare the LLM
+    # Prepare the LLM/mnt/nas1/nba055-2/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin
     match model_type:
-        case "LlamaCpp":
+        #case "LlamaCpp":
             #llm = LlamaCpp(model_path=model_path, max_tokens=model_n_ctx, n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = LlamaCpp(model_path='/data/privateGPT-gpu/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
-        case "GPT4All":
+            #llm = LlamaCpp(model_path=r'/data/privateGPTpp/models/llama-2-7b-chat.ggmlv3.q4_0.bin', n_ctx=model_n_ctx, verbose=False, n_gpu_layers=calculate_layer_count())
+        #case "GPT4All":
             #llm = GPT4All(model=model_path, max_tokens=model_n_ctx, backend='gptj', n_batch=model_n_batch, callbacks=callbacks, verbose=False)
-            llm = GPT4All(model="/data/privateGPT-gpu/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
-        case "MedLlama":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/medllama', task="text-generation", device=1,
+            #llm = GPT4All(model="data/privateGPTpp/models/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', verbose=False)
+        case "Minitron":
+            #llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/Minitron-4B-Base', task="text-generation", device=1,
+            #                            model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
+            #llm=HuggingFaceHub(repo_id="bigscience/bloom", huggingfacehub_api_token="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")
+            llm = HuggingFacePipeline.from_model_id(model_id='facebook/opt-iml-max-1.3b', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "phi":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/phi-1_5',task="text-generation", 
-                                        model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
+            #llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/phi-1_5',task="text-generation", 
+            #                            model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
+            #llm = HuggingFacePipeline.from_model_id(model_id='/data/assgn_2/privateGPTpp/models/dolly-v2-3b',task="text-generation", 
+            #                            model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
+            model_id = '/data/privateGPTpp/models/phi-1_5'
+            tokenizer = AutoTokenizer.from_pretrained(model_id)
+            model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, torch_dtype="auto")
+            llm = HuggingFacePipeline(model=model, tokenizer=tokenizer, task="text-generation", device=1)
         case "codegeex2":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/codegeex2-6b', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/codegeex2-6b', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "codellama":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/CodeLlama-7b-hf', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/CodeLlama-7b-hf', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case "vicuna":
-            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPT-gpu/models/vicuna-7b-v1.5', task="text-generation", device=1,
+            llm = HuggingFacePipeline.from_model_id(model_id='/data/privateGPTpp/models/vicuna-7b-v1.5', task="text-generation", device=1,
                                         model_kwargs={"trust_remote_code": True, "torch_dtype": "auto", "max_length":model_n_ctx})
         case _default:
             # raise exception if model_type is not supported
@@ -268,11 +337,11 @@ def call_model(query, model_type, hide_source):
 
     # Print the relevant sources used for the answer
     sources = []
-    for document in docs:
+    '''for document in docs:
         #print("\n> " + document.metadata["source"] + ":")
         #print(document.page_content)
         # Append source and page content to sources list
-        sources.append(document.metadata["source"] + ":" + document.page_content)
+        sources.append(document.metadata["source"] + ":" + document.page_content)'''
         
     return answer, sources
 
@@ -305,11 +374,13 @@ def upload():
     '''os.chdir(source_directory)
     with open(filename, "w") as f:
         f.write(file)'''
-    file.save('/data/privateGPT-gpu/source_documents/' +(file.filename))
+    file.save('/data/privateGPTpp/source_documents/' +(file.filename))
     ingest()
     
     # Return a message to the json file
-    return {'message': 'File uploaded successfully'}
+    #return {'message': 'File uploaded successfully'}
+    # return a message to be displayed on the "/" webpage and not the "/upload" webpage
+    return redirect(url_for('hello'))
     
 
 @app.route("/predict", methods=['POST'])
@@ -320,7 +391,8 @@ def predict():
     text = data['prompt']
     #text = data['input']
     # Select model from drop down list of index.html
-    model_type = data['model']
+    #model_type = data['model']
+    model_type = "Minitron"
     print(text)
     print(model_type)
     
@@ -336,9 +408,9 @@ def predict():
     sources = '\n\n'.join([source[1] for source in sources])
     # Concatenate the sources string to the answer string and add Source: to the beginning of the sources string
     answer = answer + '\n\nSources :\n\n' + sources
-    # Return the answer and sources as a dict which can be read in json format in jaavascript
+    # Return the answer and sources as a dict which can be read in json format in javascript
     return {'answer': answer}
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'source_documents'
-    app.run(port=3000, debug=True)
+    app.run(port=4000, host='0.0.0.0', debug=True)
